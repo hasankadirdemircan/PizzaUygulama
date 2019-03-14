@@ -21,14 +21,16 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable(value = "id") Long id){
-        User user = userRepository.findFirstById(id);
+
+
+    @GetMapping("/users/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable(value = "email") String email){
+        User user = userRepository.findFirstByEmail(email);
         if(null == user){
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(user);
 
     }
 

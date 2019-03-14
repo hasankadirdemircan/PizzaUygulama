@@ -3,21 +3,20 @@ package hkadirdemircan.com.pizzauygulama;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -28,9 +27,16 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import hkadirdemircan.com.pizzauygulama.model.User;
+import hkadirdemircan.com.pizzauygulama.restapi.ManagerAll;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -54,18 +60,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private  TextView registerText;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //EDIT
+        //ilk giris yapinca web servise istek attiginda
+        //bilgiler sharedPreferences yardimi ile "session" adinda tutulur ve
+        //kullanici uygulamaya tekrar tikladiginda bu kontrol calisir ve tekrar sifre istemez.
+        sharedPreferences = getApplicationContext().getSharedPreferences("session",0);
+        if(sharedPreferences.getString("email",null) != null && sharedPreferences.getString("password",null) != null )
+        {
+            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+            startActivity(intent);
+        }
+
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -92,6 +112,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        //EDIT: Kisi uye olmak istediginde, uye ol activity'e gider.
+        registerText = (TextView) findViewById(R.id.registerText);
+        registerText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent ıntent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(ıntent);
+            }
+        });
+
     }
 
     private void populateAutoComplete() {
@@ -144,9 +175,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -184,9 +212,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+          //  showProgress(true);
+         //   mAuthTask = new UserLoginTask(email, password);
+        //    mAuthTask.execute((Void) null);
+            //EDIT: hkdemircan
+            //TODO: login olma kontrolu sagla.
+            login(email,password);
         }
     }
 
@@ -290,61 +321,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+    public void login(final String email, final String password){
+        final Call<User> request = ManagerAll.getInstance().getUser(email);
+        request.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()){
+                    User user = response.body();
+                    if(user.getEmail().equals(email) && user.getPassword().equals(password)){
+                        sharedPreferences = getApplicationContext().getSharedPreferences("session",0);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("email", email);
+                        editor.putString("password", password);
+                        editor.commit();
+                        Intent ıntent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(ıntent);
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Bilgiler Yanlış",Toast.LENGTH_LONG).show();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(),"Hatalı Kullanıcı", Toast.LENGTH_LONG).show();
                 }
             }
 
-            // TODO: register the new account here.
-            return true;
-        }
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
 
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
             }
-        }
+        });
 
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
+
 }
 

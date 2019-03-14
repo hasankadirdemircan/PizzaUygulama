@@ -7,6 +7,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,20 +31,15 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import hkadirdemircan.com.pizzauygulama.model.User;
 import hkadirdemircan.com.pizzauygulama.restapi.ManagerAll;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class DogrulamaActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -60,7 +56,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    //private UserLoginTask mAuthTask = null;
+   // private UserLoginTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -68,10 +64,17 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private View mProgressView;
     private View mLoginFormView;
 
+    //EDIT
+    //RegisterAcitivity'den intent ile gelen bilgileri almak icin.
+    String dogrulamaKodu;
+    String email;
+    Long userId;
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_dogrulama);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -87,6 +90,16 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                 return false;
             }
         });
+
+
+        //EDIT
+        //intent ile gonderdigimiz bilgileri set ediyoruz.
+        Bundle bundle = getIntent().getExtras();
+        dogrulamaKodu = String.valueOf(bundle.getInt("code"));
+        email = bundle.getString("email");
+        userId = bundle.getLong("id");
+        Toast.makeText(getApplicationContext(),dogrulamaKodu,Toast.LENGTH_LONG).show();
+        mEmailView.setText(email);//email alanina email'i set ediyoruz.
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -160,13 +173,13 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String kod = mPasswordView.getText().toString(); // girdigi dogrulama kodunu aliyoruz.
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(kod) && !isPasswordValid(kod)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -190,17 +203,12 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+//            showProgress(true);
 //            mAuthTask = new UserLoginTask(email, password);
 //            mAuthTask.execute((Void) null);
 
-            //EDIT hkdemircan
-            //Eger hata yok ise uye ol fonksiyonuna yolluyoruz.
-
-                register(email,password);
-
-
-
+            //EDIT
+            dogrula(email,kod);
         }
     }
 
@@ -287,7 +295,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(RegisterActivity.this,
+                new ArrayAdapter<>(DogrulamaActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
@@ -304,41 +312,17 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Kullanicinin uye olma islemi yapilir.
-     *
-     */
-    public void register(String email, String password){
-        User user = new User(email, password);
-        Call<User> request = ManagerAll.getInstance().createUser(user);
-        request.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                showProgress(false); //kullanici cikis yapamasin.
-                String email = mEmailView.getText().toString(); //girdigi mail'i aliyoruz.
-                if(response.isSuccessful()){
-                    Intent intent = new Intent(RegisterActivity.this,DogrulamaActivity.class);
-                    intent.putExtra("email", email); //Dogrulama activity'e email bilgisini gonderiyoruz.
-                    intent.putExtra("code", generateRandomCode());
-                    intent.putExtra("id", response.body().getId());
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(getApplicationContext(),response.body().getEmail(),Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-
-            }
-        });
+    //EDIT
+    public void dogrula(String email, String kod){
+        //girilen kod ile verilen dogrulamaKodu aynı ise MainActivity'e gonderilir.
+        //Degilse db 'den veri silinerek login ekranına gonderilir.
+        if(kod.equals(dogrulamaKodu)){
+            Intent ıntent = new Intent(DogrulamaActivity.this, MainActivity.class );
+            startActivity(ıntent);
+        }else{
+            Toast.makeText(getApplicationContext(),"Başarısız Deneme",Toast.LENGTH_LONG).show();
+            ManagerAll.getInstance().deleteUser(userId);
+        }
     }
-
-    public int generateRandomCode(){
-        Random random = new Random();
-        int number = random.nextInt(1000000) + 100000;
-        return number;
-    }
-
 }
 
