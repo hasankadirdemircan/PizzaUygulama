@@ -1,5 +1,9 @@
 package hkadirdemircan.com.pizzauygulama.restapi;
 
+import java.util.List;
+
+import hkadirdemircan.com.pizzauygulama.model.PideCesitleri;
+import hkadirdemircan.com.pizzauygulama.model.PideKaydet;
 import hkadirdemircan.com.pizzauygulama.model.User;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -23,4 +27,10 @@ public interface RestApi {
 
     @GET("/api/users/{email}")
     Call<User> getUser(@Path("email") String email);
+
+    @GET("/pide/all")
+    Call <List<PideCesitleri>> getPideCesitleri();
+
+    @POST("/pide/save")
+    Call <PideKaydet> savePideKaydet(@Body PideKaydet pideKaydet);
 }

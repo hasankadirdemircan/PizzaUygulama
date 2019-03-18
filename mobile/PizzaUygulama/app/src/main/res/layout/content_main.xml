@@ -1,11 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    tools:showIn="@layout/app_bar_main">
+    tools:showIn="@layout/app_bar_main"
+    android:padding="60dp">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/pideSecimTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pide Seçimi"
+            android:textStyle="bold"
+            android:textColor="#000"/>
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/pideSecimTextView"></Spinner>
+        <TextView
+            android:id="@+id/pideAdetTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/spinner"
+            android:layout_marginTop="30dp"
+            android:text="Adet : "
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/pideAdetEditText"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="70dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/pideAdetTextView"
+            android:layout_below="@+id/spinner"
+            android:hint="Adet Giriniz"
+            />
+    <Button
+        android:id="@+id/siparisVerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="85dp"
+        android:layout_below= "@id/pideAdetTextView"
+        android:text="Sipariş Ver"/>
+
+
+</RelativeLayout>

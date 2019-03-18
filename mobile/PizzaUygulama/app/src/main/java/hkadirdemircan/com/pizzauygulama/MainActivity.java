@@ -3,9 +3,7 @@ package hkadirdemircan.com.pizzauygulama;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,7 +12,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import hkadirdemircan.com.pizzauygulama.model.PideCesitleri;
+import hkadirdemircan.com.pizzauygulama.model.PideKaydet;
+import hkadirdemircan.com.pizzauygulama.restapi.ManagerAll;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -24,26 +38,28 @@ public class MainActivity extends AppCompatActivity
     String navHeaderText;
     TextView navHeaderTextView;
     SharedPreferences.Editor editor; //cikis yapma islemi icin.
+    TextView pideSecimTextView;
+    Spinner spinner;
+    List<PideCesitleri> pideCesitleri = new ArrayList<>();
+    List<String> pideler = new ArrayList<>();
+    ArrayAdapter arrayAdapter; //spinner icin.
+    String secilenPide;
+    Button siparisVerButton;
+    EditText pideAdetEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Pide Cesitlerini iste.
+
         //EDIT
         sharedPreferences = getApplicationContext().getSharedPreferences("session",0);
         navHeaderText = sharedPreferences.getString("email",null);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -59,6 +75,107 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         navHeaderTextView = (TextView) headerView.findViewById(R.id.navTextView);
         navHeaderTextView.setText(navHeaderText);
+
+        pideCesitleriniGetir();// pide cesitlerini sunucudan cekti.
+        //Spinner icine verileri giriyoruz.
+
+    }
+
+    public void tanimlamalar(){
+
+//        //pideleri goster.
+        spinnerTanimla();
+        spinnerAdapterOlustur();
+        spinnerAdapterEkle();
+        spinnerTiklamaListener();
+
+        buttonOnclick();
+
+
+    }
+
+    public void buttonOnclick(){
+        siparisVerButton = (Button) findViewById(R.id.siparisVerButton);
+        pideAdetEditText = (EditText) findViewById(R.id.pideAdetEditText);
+        siparisVerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != pideAdetEditText.getText().toString() && null != secilenPide){
+
+                    PideKaydet pideKaydet = new PideKaydet();
+                    pideKaydet.setPideCesit(secilenPide);
+                    pideKaydet.setAdet(pideAdetEditText.getText().toString());
+                    pideKaydet.setEmail(navHeaderText);
+                    //todo: tutari hesapla.
+                    pideKaydet.setTutar("5000");
+                    Call <PideKaydet> requset = ManagerAll.getInstance().savePideKaydet(pideKaydet);
+                    requset.enqueue(new Callback<PideKaydet>() {
+                        @Override
+                        public void onResponse(Call<PideKaydet> call, Response<PideKaydet> response) {
+                            Toast.makeText(getApplicationContext(),"kaydedildi.",Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<PideKaydet> call, Throwable t) {
+
+                        }
+                    });
+                }else{
+                    Toast.makeText(getApplicationContext(),"Bilgileri Eksik Girdiniz.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    public void spinnerTanimla(){
+        spinner = (Spinner) findViewById(R.id.spinner);
+    }
+    public void spinnerAdapterOlustur(){
+        arrayAdapter = new ArrayAdapter(this,R.layout.support_simple_spinner_dropdown_item, pideler);
+    }
+    public void spinnerAdapterEkle(){
+        spinner.setAdapter(arrayAdapter);
+    }
+
+    public void spinnerTiklamaListener(){
+     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+         @Override
+         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+             Toast.makeText(getApplicationContext(),"oldu", Toast.LENGTH_LONG).show();
+             secilenPide = spinner.getSelectedItem().toString();
+         }
+
+         @Override
+         public void onNothingSelected(AdapterView<?> parent) {
+
+         }
+     });
+    }
+//spinner'a ekleniyor.
+    public void pideleriEkle(){
+
+        for (PideCesitleri item : pideCesitleri){
+            pideler.add(item.getCesit());
+        }
+
+    }
+    //pide cesitlerinin web servisten istenildigi yer.
+    public List<PideCesitleri> pideCesitleriniGetir(){
+        Call <List<PideCesitleri>> request = ManagerAll.getInstance().getPideCesitleri();
+        request.enqueue(new Callback<List<PideCesitleri>>() {
+            @Override
+            public void onResponse(Call<List<PideCesitleri>> call, Response<List<PideCesitleri>> response) {
+                pideCesitleri = response.body();
+                pideleriEkle();
+                tanimlamalar();
+            }
+
+            @Override
+            public void onFailure(Call<List<PideCesitleri>> call, Throwable t) {
+
+            }
+        });
+        return pideCesitleri;
     }
 
     @Override

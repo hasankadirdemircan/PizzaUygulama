@@ -1,5 +1,9 @@
 package hkadirdemircan.com.pizzauygulama.restapi;
 
+import java.util.List;
+
+import hkadirdemircan.com.pizzauygulama.model.PideCesitleri;
+import hkadirdemircan.com.pizzauygulama.model.PideKaydet;
 import hkadirdemircan.com.pizzauygulama.model.User;
 import retrofit2.Call;
 
@@ -24,6 +28,16 @@ public class ManagerAll  extends BaseManager {
 
     public Call<User> getUser(String email){
         Call<User> call = getRestApiClient().getUser(email);
+        return call;
+    }
+
+    public Call <List<PideCesitleri>> getPideCesitleri(){
+        Call <List<PideCesitleri>> call = getRestApiClient().getPideCesitleri();
+        return call;
+    }
+
+    public Call <PideKaydet> savePideKaydet(PideKaydet pideKaydet){
+        Call <PideKaydet> call = getRestApiClient().savePideKaydet(pideKaydet);
         return call;
     }
 }
