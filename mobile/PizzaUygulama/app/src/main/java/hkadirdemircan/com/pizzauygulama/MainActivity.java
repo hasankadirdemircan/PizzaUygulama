@@ -107,12 +107,21 @@ public class MainActivity extends AppCompatActivity
                     pideKaydet.setAdet(pideAdetEditText.getText().toString());
                     pideKaydet.setEmail(navHeaderText);
                     //todo: tutari hesapla.
-                    pideKaydet.setTutar("5000");
+                    int tutar = 0;
+                    int adet = Integer.parseInt(pideKaydet.getAdet().toString());
+                    if("kıymalı".equals(secilenPide)){
+                        tutar = 12 * adet;
+                    }else if("kaşarlı".equals(secilenPide)){
+                        tutar = 10* adet;
+                    }else{
+                        tutar = 14 * adet;
+                    }
+                    pideKaydet.setTutar(Integer.toString(tutar));
                     Call <PideKaydet> requset = ManagerAll.getInstance().savePideKaydet(pideKaydet);
                     requset.enqueue(new Callback<PideKaydet>() {
                         @Override
                         public void onResponse(Call<PideKaydet> call, Response<PideKaydet> response) {
-                            Toast.makeText(getApplicationContext(),"kaydedildi.",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(),"Siparişiniz Alındı.",Toast.LENGTH_LONG).show();
                         }
 
                         @Override
@@ -141,7 +150,7 @@ public class MainActivity extends AppCompatActivity
      spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
          @Override
          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-             Toast.makeText(getApplicationContext(),"oldu", Toast.LENGTH_LONG).show();
+             Toast.makeText(getApplicationContext(),"seçildi", Toast.LENGTH_LONG).show();
              secilenPide = spinner.getSelectedItem().toString();
          }
 
@@ -218,7 +227,9 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.siparislerim) {
+            //todo: siparislerim icin baska activity'e gonder.
+            Intent ıntent = new Intent(MainActivity.this, SiparislerimActivity.class);
 
         } else if (id == R.id.nav_slideshow) {
 

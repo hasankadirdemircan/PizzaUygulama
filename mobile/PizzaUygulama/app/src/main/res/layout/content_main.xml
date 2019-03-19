@@ -15,11 +15,13 @@
             android:layout_height="wrap_content"
             android:text="Pide Seçimi"
             android:textStyle="bold"
-            android:textColor="#000"/>
+            android:textColor="#000"
+            android:layout_marginTop="15dp"/>
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
             android:layout_toRightOf="@+id/pideSecimTextView"></Spinner>
         <TextView
             android:id="@+id/pideAdetTextView"
