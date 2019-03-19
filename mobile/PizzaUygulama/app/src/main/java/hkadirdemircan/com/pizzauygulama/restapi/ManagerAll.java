@@ -40,4 +40,14 @@ public class ManagerAll  extends BaseManager {
         Call <PideKaydet> call = getRestApiClient().savePideKaydet(pideKaydet);
         return call;
     }
+
+    public Call <List<PideKaydet>> getPideSiparislerim(String email){
+        Call <List<PideKaydet>> call = getRestApiClient().getPideSiparislerim(email);
+        return call;
+    }
+
+    public Call <PideKaydet> getPideSiparisi(int id){
+        Call <PideKaydet> call = getRestApiClient().getPideSiparisi(id);
+        return call;
+    }
 }

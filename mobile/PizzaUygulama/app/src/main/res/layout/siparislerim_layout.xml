@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:background="#EEEEEE"
+    android:padding="10dp"
+    android:layout_margin="3dp"
+
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/pideResimImageView"
+        android:layout_width="0dp"
+        android:layout_weight="1.1"
+        android:layout_height="100dp" />
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/siparisPideAd"
+            android:text="Deneme"
+            android:textColor="#0F3057"
+            android:textSize="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/pideFiyatTextView"
+            android:text="pide fiyat"
+            android:textColor="#0F3057"
+            android:textSize="15dp"
+            android:layout_alignParentBottom="true"
+            android:gravity="right|bottom"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/pideAdetTextView"
+            android:text="Deneme"
+            android:textColor="#0F3057"
+            android:textSize="20dp"
+            android:layout_above="@+id/pideFiyatTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+
+</LinearLayout>

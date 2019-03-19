@@ -229,7 +229,10 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.siparislerim) {
             //todo: siparislerim icin baska activity'e gonder.
+
             Intent ıntent = new Intent(MainActivity.this, SiparislerimActivity.class);
+            ıntent.putExtra("email", navHeaderText); //Dogrulama activity'e email bilgisini gonderiyoruz.
+            startActivity(ıntent);
 
         } else if (id == R.id.nav_slideshow) {
 

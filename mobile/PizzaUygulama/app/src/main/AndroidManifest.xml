@@ -37,7 +37,8 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme" />
-        <activity android:name=".SiparislerimActivity"></activity>
+        <activity android:name=".SiparislerimActivity" android:theme="@style/AppTheme.SlidrActivityTheme"/>
+        <activity android:name=".SiparislerimDetayActivity" />
     </application>
 
 </manifest>

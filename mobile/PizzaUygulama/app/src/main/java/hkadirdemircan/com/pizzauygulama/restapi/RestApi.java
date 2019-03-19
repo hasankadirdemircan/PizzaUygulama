@@ -33,4 +33,10 @@ public interface RestApi {
 
     @POST("/pide/save")
     Call <PideKaydet> savePideKaydet(@Body PideKaydet pideKaydet);
+
+    @GET("/pide/all/{email}")
+    Call <List<PideKaydet>> getPideSiparislerim(@Path("email") String email);
+
+    @GET("/pide/first/{id}")
+    Call <PideKaydet> getPideSiparisi(@Path("id") int id);
 }

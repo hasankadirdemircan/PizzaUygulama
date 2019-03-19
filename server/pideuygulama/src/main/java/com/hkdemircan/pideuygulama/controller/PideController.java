@@ -29,4 +29,15 @@ public class PideController {
     public PideKaydet savePide (@Valid @RequestBody PideKaydet pideKaydet){
         return pideKaydetRepository.save(pideKaydet);
     }
+
+    @GetMapping("/all/{email}")
+    public List<PideKaydet> getAllEmailPide(@PathVariable("email") String email){
+            return pideKaydetRepository.findAllByEmail(email);
+    }
+
+    @GetMapping("/first/{id}")
+    public PideKaydet getFirstByIdPide(@PathVariable("id") int id){
+        return pideKaydetRepository.findFirstById(id);
+    }
+
 }
