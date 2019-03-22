@@ -13,6 +13,7 @@
         android:id="@+id/pideResimImageView"
         android:layout_width="0dp"
         android:layout_weight="1.1"
+        android:src="@drawable/pizzaa"
         android:layout_height="100dp" />
 
     <RelativeLayout

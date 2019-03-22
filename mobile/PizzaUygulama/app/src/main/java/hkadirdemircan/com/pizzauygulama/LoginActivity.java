@@ -68,12 +68,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mLoginFormView;
     private  TextView registerText;
     SharedPreferences sharedPreferences;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         //EDIT
         //ilk giris yapinca web servise istek attiginda
         //bilgiler sharedPreferences yardimi ile "session" adinda tutulur ve

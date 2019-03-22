@@ -29,9 +29,12 @@ public class SiparislerimDetayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_siparislerim_detay);
 
         bundle = getIntent().getExtras();
-        id =String.valueOf(bundle.getLong("id"));
+        id =String.valueOf(bundle.getInt("id"));
         idInt = Integer.parseInt(id);
-        idInt++;
+        pideCesitTextView = (TextView)findViewById(R.id.pideCesitTextView);
+        pideAdetTextview = (TextView)findViewById(R.id.pideAdetTextview);
+        pideTutarTextView = (TextView)findViewById(R.id.pideTutarTextView);
+
         tanimla();
 
         ilanDetayGetir();
@@ -47,22 +50,19 @@ public class SiparislerimDetayActivity extends AppCompatActivity {
     }
 
     public void tanimla(){
-        pideCesitTextView = (TextView)findViewById(R.id.pideCesitTextView);
-        pideAdetTextview = (TextView)findViewById(R.id.pideAdetTextview);
-        pideTutarTextView = (TextView)findViewById(R.id.pideTutarTextView);
-    }
+           }
 
     public void ilanDetayGetir(){
         final Call<PideKaydet> request = ManagerAll.getInstance().getPideSiparisi(idInt);
         request.enqueue(new Callback<PideKaydet>() {
             @Override
             public void onResponse(Call<PideKaydet> call, Response<PideKaydet> response) {
-                if (response.isSuccessful()){
+
                     pideKaydet = response.body();
                     pideCesitTextView.setText(pideKaydet.getPideCesit());
                     pideAdetTextview.setText(pideKaydet.getAdet());
                     pideTutarTextView.setText(pideKaydet.getTutar());
-                }
+
             }
 
             @Override
